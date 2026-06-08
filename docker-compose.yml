@@ -1,0 +1,29 @@
+services:
+  db:
+    image: postgres:16
+    container_name: crm-database
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: crm
+      POSTGRES_PASSWORD: crm123
+      POSTGRES_DB: crm_db
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  api:
+    build: .
+    container_name: crm-backend
+    ports:
+      - "3001:3001"
+    depends_on:
+      - db
+    volumes:
+      - ./data:/app/data
+    environment:
+      - PORT=3001
+      - NODE_ENV=production
+      - DATABASE_URL=postgresql://crm:crm123@db:5432/crm_db
+
+volumes:
+  pgdata:

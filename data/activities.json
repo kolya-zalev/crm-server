@@ -1,0 +1,23 @@
+[
+  {
+    "id": "edc93890-76b4-4aa7-8888-52995cc55172",
+    "leadId": "b492b161-dcaf-410a-b866-4b892d7d35b1",
+    "type": "lead_created",
+    "description": "Lead was created",
+    "createdAt": "2026-06-05T11:25:48.362Z"
+  },
+  {
+    "id": "c6e337f2-52a0-44f7-bd45-1c99cbad072b",
+    "leadId": "669abbb5-c474-4a9d-9cab-6a8565aee976",
+    "type": "status_changed",
+    "description": "new → contacted",
+    "createdAt": "2026-06-06T11:25:48.362Z"
+  },
+  {
+    "id": "a3d52736-51f3-4677-aef0-a74ea6e50dfe",
+    "leadId": "131edd71-0a04-4ae0-88cb-e5f2986c5d4e",
+    "type": "note_added",
+    "description": "Note added",
+    "createdAt": "2026-06-07T11:25:48.362Z"
+  }
+]

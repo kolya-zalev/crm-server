@@ -1,0 +1,23 @@
+[
+  {
+    "id": "6aa9f763-5be4-41fc-988e-095b867cd7f1",
+    "leadId": "b492b161-dcaf-410a-b866-4b892d7d35b1",
+    "text": "Initial contact via LinkedIn",
+    "createdAt": "2026-06-05T11:25:48.362Z",
+    "updatedAt": "2026-06-05T11:25:48.362Z"
+  },
+  {
+    "id": "34e38c3f-b1f5-459e-a199-24323de60aec",
+    "leadId": "669abbb5-c474-4a9d-9cab-6a8565aee976",
+    "text": "Sent proposal email",
+    "createdAt": "2026-06-06T11:25:48.362Z",
+    "updatedAt": "2026-06-06T11:25:48.362Z"
+  },
+  {
+    "id": "113fc02a-9c7e-4bbe-81a0-19f4f0ed3f64",
+    "leadId": "131edd71-0a04-4ae0-88cb-e5f2986c5d4e",
+    "text": "Replied, interested",
+    "createdAt": "2026-06-07T11:25:48.362Z",
+    "updatedAt": "2026-06-07T11:25:48.362Z"
+  }
+]

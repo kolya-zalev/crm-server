@@ -1,0 +1,57 @@
+[
+  {
+    "id": "b492b161-dcaf-410a-b866-4b892d7d35b1",
+    "name": "Kolya",
+    "email": "kolaov356@gmail.com",
+    "phone": "+380986359129",
+    "company": "Home",
+    "status": "new",
+    "tags": [],
+    "notes": "yes",
+    "source": "no"
+  },
+  {
+    "id": "669abbb5-c474-4a9d-9cab-6a8565aee976",
+    "name": "John",
+    "email": "johnexample@gmail.com",
+    "phone": "",
+    "company": "mcdonalds",
+    "status": "contacted",
+    "tags": [],
+    "notes": "test"
+  },
+  {
+    "id": "131edd71-0a04-4ae0-88cb-e5f2986c5d4e",
+    "name": "Alex",
+    "email": "Alexexample@gmail.com",
+    "phone": "+44444444",
+    "company": "Apple",
+    "status": "qualified",
+    "tags": [],
+    "notes": "yes",
+    "source": "no"
+  },
+  {
+    "id": "b70c57b2-f112-4eff-a628-abe97ebf877c",
+    "name": "Mark",
+    "email": "markexample@gmail.com",
+    "phone": "+1241241124",
+    "company": "adidas",
+    "status": "won",
+    "tags": [],
+    "notes": "test"
+  },
+  {
+    "id": "dfbc6c08-2ea2-44c0-a49d-223cb00947a5",
+    "name": "Adam",
+    "email": "adamexample@gmail.com",
+    "phone": "+8777777777",
+    "company": "Sony",
+    "status": "lost",
+    "tags": [
+      "1"
+    ],
+    "notes": "yes",
+    "source": "no"
+  }
+]
