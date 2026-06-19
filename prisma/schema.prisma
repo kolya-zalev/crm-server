@@ -54,3 +54,39 @@ model Task {
   createdAt   DateTime  @default(now())
   completedAt DateTime?
 }
+
+model User {
+  id String @id @default(uuid())
+  email String @unique
+  passwordHash String
+  name String
+  role Role @default(sales)
+  status UserStatus @default(active)
+  workspaceId String
+  workspace Workspace @relation(fields: [workspaceId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+}
+
+
+model Workspace {
+  id String @id @default(uuid())
+  name String
+  members User[]
+  createdAt DateTime @default(now())
+ 
+}
+
+enum Role {
+  admin
+  manager
+  sales
+  viewer
+}
+
+enum UserStatus {
+  active
+  invited
+  disabled
+}

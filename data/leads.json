@@ -5,7 +5,7 @@
     "email": "kolaov356@gmail.com",
     "phone": "+380986359129",
     "company": "Home",
-    "status": "new",
+    "status": "contacted",
     "tags": [],
     "notes": "yes",
     "source": "no"
@@ -14,11 +14,12 @@
     "id": "669abbb5-c474-4a9d-9cab-6a8565aee976",
     "name": "John",
     "email": "johnexample@gmail.com",
-    "phone": "",
+    "phone": "11111111",
     "company": "mcdonalds",
-    "status": "contacted",
+    "status": "new",
     "tags": [],
-    "notes": "test"
+    "notes": "test",
+    "source": ""
   },
   {
     "id": "131edd71-0a04-4ae0-88cb-e5f2986c5d4e",
@@ -26,32 +27,95 @@
     "email": "Alexexample@gmail.com",
     "phone": "+44444444",
     "company": "Apple",
-    "status": "qualified",
-    "tags": [],
-    "notes": "yes",
-    "source": "no"
-  },
-  {
-    "id": "b70c57b2-f112-4eff-a628-abe97ebf877c",
-    "name": "Mark",
-    "email": "markexample@gmail.com",
-    "phone": "+1241241124",
-    "company": "adidas",
     "status": "won",
     "tags": [],
-    "notes": "test"
-  },
-  {
-    "id": "dfbc6c08-2ea2-44c0-a49d-223cb00947a5",
-    "name": "Adam",
-    "email": "adamexample@gmail.com",
-    "phone": "+8777777777",
-    "company": "Sony",
-    "status": "lost",
-    "tags": [
-      "1"
-    ],
     "notes": "yes",
     "source": "no"
+  },
+  {
+    "id": "c4c12a0a-79cd-465d-8964-d8f03967781c",
+    "name": "Masha",
+    "email": "masha@example.com",
+    "phone": "0000000000000",
+    "company": "Puma",
+    "status": "qualified",
+    "tags": [],
+    "notes": "",
+    "source": ""
+  },
+  {
+    "id": "3ba970af-5100-41cd-8d6f-1d9f221b333b",
+    "name": "testtttt",
+    "email": "test@gmail.com",
+    "phone": "111111",
+    "company": "1111",
+    "status": "new",
+    "tags": [],
+    "notes": "",
+    "source": ""
+  },
+  {
+    "id": "7074ab7f-2e8e-4448-9028-7169b8bc249a",
+    "name": "John Smith",
+    "email": "john.smith@acme.com",
+    "phone": "+1 555 0101",
+    "company": "Acme Corp",
+    "status": "new",
+    "tags": [
+      "vip"
+    ],
+    "notes": "Interested in demo",
+    "source": "website"
+  },
+  {
+    "id": "d3cd6adf-4d81-487b-a414-36a032a94f78",
+    "name": "Jane Doe",
+    "email": "jane.doe@beta.io",
+    "phone": "+1 555 0102",
+    "company": "Beta Inc",
+    "status": "contacted",
+    "tags": [
+      "enterprise"
+    ],
+    "notes": "Follow up next week",
+    "source": "referral"
+  },
+  {
+    "id": "4fce4c5f-8787-4763-a891-a1533e115fca",
+    "name": "Alex Johnson",
+    "email": "alex.j@gamma.co",
+    "company": "Gamma LLC",
+    "status": "qualified",
+    "tags": [
+      "warm"
+    ],
+    "notes": "Ready for proposal",
+    "source": "linkedin"
+  },
+  {
+    "id": "93352133-a55f-48f0-828e-b1dc617b48b2",
+    "name": "Maria Garcia",
+    "email": "maria.g@delta.net",
+    "phone": "+1 555 0104",
+    "company": "Delta Systems",
+    "status": "won",
+    "tags": [
+      "hot"
+    ],
+    "notes": "Closed deal Q1",
+    "source": "event"
+  },
+  {
+    "id": "e7cafcc1-b35f-4211-abf8-67e2f8f6f6f8",
+    "name": "Tom Wilson",
+    "email": "tom.w@epsilon.org",
+    "phone": "+1 555 0105",
+    "company": "Epsilon Ltd",
+    "status": "new",
+    "tags": [
+      "cold"
+    ],
+    "notes": "Not a fit right now",
+    "source": "cold-call"
   }
 ]

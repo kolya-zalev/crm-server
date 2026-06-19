@@ -24,6 +24,7 @@ services:
       - PORT=3001
       - NODE_ENV=production
       - DATABASE_URL=postgresql://crm:crm123@db:5432/crm_db
+      - JWT_SECRET=super-long-random-secret-at-least-32-characters
 
 volumes:
   pgdata:
