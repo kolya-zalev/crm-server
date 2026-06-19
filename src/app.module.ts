@@ -7,6 +7,7 @@ import { ActivitiesModule } from './activities/activities.module';
 import { TasksModule } from './tasks/tasks.module';
 import { AuthModule } from './auth/auth.module';
 import { JwtAuthGuard } from './auth/jwt-auth.guard';
+import { RolesGuard } from './auth/roles.guard';
 
 @Module({
   imports: [
@@ -17,6 +18,9 @@ import { JwtAuthGuard } from './auth/jwt-auth.guard';
     TasksModule,       // /api/tasks + /api/leads/:id/tasks
     AuthModule,
   ],
-  providers: [{ provide: APP_GUARD, useClass: JwtAuthGuard }],
+  providers: [
+    { provide: APP_GUARD, useClass: JwtAuthGuard },
+    { provide: APP_GUARD, useClass: RolesGuard },
+  ],
 })
 export class AppModule {}

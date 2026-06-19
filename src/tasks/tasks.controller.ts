@@ -1,6 +1,8 @@
 import {
   Body, Controller, Delete, Get, HttpCode, Param, Post, Put,
 } from '@nestjs/common';
+import { Role } from '@prisma/client';
+import { Roles } from 'src/auth/roles.decorator';
 import { TasksService } from './tasks.service';
 import { CreateTaskDto, UpdateTaskDto } from './dto/task.dto';
 
@@ -15,12 +17,14 @@ export class TasksController {
   }
 
   @Put(':taskId')
+  @Roles(Role.admin, Role.manager, Role.sales)
   update(@Param('taskId') taskId: string, @Body() dto: UpdateTaskDto) {
     return this.tasksService.update(taskId, dto);
   }
 
   @Delete(':taskId')
   @HttpCode(204)
+  @Roles(Role.admin, Role.manager)
   remove(@Param('taskId') taskId: string) {
     return this.tasksService.remove(taskId);
   }
@@ -37,6 +41,7 @@ export class LeadTasksController {
   }
 
   @Post()
+  @Roles(Role.admin, Role.manager, Role.sales)
   create(@Param('id') leadId: string, @Body() dto: CreateTaskDto) {
     return this.tasksService.create(leadId, dto);
   }
