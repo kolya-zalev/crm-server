@@ -5,7 +5,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { Role, User } from '@prisma/client';
+import { Role, User, UserStatus } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { LoginDto } from './dto/login.dto';
@@ -32,6 +32,23 @@ export class AuthService {
       where: { email: dto.email },
     });
     if (existing) {
+      if (existing.status === UserStatus.invited) {
+        const passwordHash = await bcrypt.hash(dto.password, 10);
+        const user = await this.prisma.user.update({
+          where: { id: existing.id },
+          data: {
+            passwordHash,
+            name: dto.name,
+            status: UserStatus.active,
+          },
+        });
+
+        return {
+          accessToken: this.signToken(user),
+          user: this.sanitizeUser(user),
+        };
+      }
+
       throw new ConflictException('Email already registered');
     }
 

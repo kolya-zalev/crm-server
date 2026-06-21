@@ -6,6 +6,8 @@ import { NotesModule } from './notes/notes.module';
 import { ActivitiesModule } from './activities/activities.module';
 import { TasksModule } from './tasks/tasks.module';
 import { AuthModule } from './auth/auth.module';
+import { TeamModule } from './team/team.module';
+import { NotificationsModule } from './notifications/notifications.module';
 import { JwtAuthGuard } from './auth/jwt-auth.guard';
 import { RolesGuard } from './auth/roles.guard';
 
@@ -17,6 +19,8 @@ import { RolesGuard } from './auth/roles.guard';
     ActivitiesModule,  // /api/leads/:id/activities
     TasksModule,       // /api/tasks + /api/leads/:id/tasks
     AuthModule,
+    TeamModule,        // /api/team
+    NotificationsModule,
   ],
   providers: [
     { provide: APP_GUARD, useClass: JwtAuthGuard },

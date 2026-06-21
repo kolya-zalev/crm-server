@@ -8,6 +8,10 @@ export const PERMISSIONS = {
     'leads:import': [Role.admin, Role.manager, Role.sales],
     'leads:export': [Role.admin, Role.manager, Role.sales],
     'leads:view': [Role.admin, Role.manager, Role.sales, Role.viewer],
+    'team:read': [Role.admin, Role.manager],
+    'team:invite': [Role.admin, Role.manager],
+    'team:change-role': [Role.admin],
+    'team:disable-user': [Role.admin],
 } as const;
 
 export type Permission = keyof typeof PERMISSIONS;
