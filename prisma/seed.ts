@@ -6,7 +6,7 @@ import { getPrismaClientOptions } from "../src/prisma/prisma-client-options";
 const prisma = new PrismaClient(getPrismaClientOptions());
 
 async function main() {
-  console.log("🌱 Cleaning database...");
+  console.log("Cleaning database...");
   await prisma.task.deleteMany();
   await prisma.activity.deleteMany();
   await prisma.note.deleteMany();
@@ -14,7 +14,7 @@ async function main() {
   await prisma.teamMember.deleteMany();
   await prisma.user.deleteMany();
 
-  console.log("🚀 Importing 5 leads with full relations into PostgreSQL...");
+  console.log("Importing 5 leads with full relations into PostgreSQL...");
 
   // 1. LEAD: Kolya
   const kolya = await prisma.lead.create({
@@ -85,7 +85,7 @@ async function main() {
   });
 
   // --- SEEDING NOTES ---
-  console.log("📝 Seeding notes...");
+  console.log("Seeding notes...");
   await prisma.note.createMany({
     data: [
       {
@@ -107,7 +107,7 @@ async function main() {
   });
 
   // --- SEEDING ACTIVITIES ---
-  console.log("⚡ Seeding activities...");
+  console.log(" Seeding activities...");
   await prisma.activity.createMany({
     data: [
       {
@@ -132,7 +132,7 @@ async function main() {
   });
 
   // --- SEEDING TASKS ---
-  console.log("📋 Seeding tasks...");
+  console.log(" Seeding tasks...");
   await prisma.task.create({
     data: {
       leadId: kolya.id,
@@ -240,11 +240,11 @@ async function main() {
 main()
   .then(() => {
     console.log(
-      "✅ Success! Full relation dataset migrated to PostgreSQL (Seeded!).",
+      " Success! Full relation dataset migrated to PostgreSQL (Seeded!).",
     );
   })
   .catch((err) => {
-    console.error("❌ Seeding error encountered:", err);
+    console.error(" Seeding error encountered:", err);
     process.exit(1);
   })
   .finally(async () => {
