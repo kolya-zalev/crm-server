@@ -1,5 +1,6 @@
 import "dotenv/config";
 import { PrismaClient } from "@prisma/client";
+import * as bcrypt from "bcrypt";
 import { getPrismaClientOptions } from "../src/prisma/prisma-client-options";
 
 const prisma = new PrismaClient(getPrismaClientOptions());
@@ -10,6 +11,8 @@ async function main() {
   await prisma.activity.deleteMany();
   await prisma.note.deleteMany();
   await prisma.lead.deleteMany();
+  await prisma.teamMember.deleteMany();
+  await prisma.user.deleteMany();
 
   console.log("Importing 5 leads with full relations into PostgreSQL...");
 
@@ -190,6 +193,47 @@ async function main() {
       createdAt: new Date(Date.now() - 86400000 * 2),
       completedAt: new Date(Date.now() - 86400000),
     },
+  });
+
+  console.log("Seeding users...");
+  const passwordHash = await bcrypt.hash("password123", 10);
+  await prisma.user.create({
+    data: {
+      name: "Admin",
+      email: "admin@example.com",
+      passwordHash,
+    },
+  });
+
+  // --- SEEDING TEAM MEMBERS ---
+  console.log("Seeding team members...");
+  await prisma.teamMember.createMany({
+    data: [
+      {
+        name: "Test Admin",
+        email: "testadmin@example.com",
+        role: "admin",
+        status: "active",
+        invitedAt: new Date(Date.now() - 86400000),
+        joinedAt: new Date(Date.now() - 86400000),
+      },
+      {
+        name: "Test Manager",
+        email: "testmanager@example.com",
+        role: "manager",
+        status: "active",
+        invitedAt: new Date(Date.now() - 86400000),
+        joinedAt: new Date(Date.now() - 86400000),
+      },
+      {
+        name: "Test Member",
+        email: "testmember@example.com",
+        role: "member",
+        status: "active",
+        invitedAt: new Date(Date.now() - 86400000),
+        joinedAt: new Date(Date.now() - 86400000),
+      },
+    ],
   });
 }
 

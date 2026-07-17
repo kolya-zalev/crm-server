@@ -1,6 +1,3 @@
-// LeadsService — вся логика работы с лидами.
-// Также создаёт Activities при создании/обновлении лидов через Prisma.
-
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateLeadDto, UpdateLeadDto } from './dto/lead.dto';
 import { PrismaService } from 'src/prisma/prisma.service';

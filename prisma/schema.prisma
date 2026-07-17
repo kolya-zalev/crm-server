@@ -54,3 +54,24 @@ model Task {
   createdAt   DateTime  @default(now())
   completedAt DateTime?
 }
+
+model User {
+  id           String   @id @default(uuid())
+  email        String   @unique
+  passwordHash String
+  name         String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model TeamMember {
+  id        String    @id @default(uuid())
+  name      String    @default("")
+  email     String    @unique
+  role      String    
+  status    String    
+  invitedAt DateTime?
+  joinedAt  DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}

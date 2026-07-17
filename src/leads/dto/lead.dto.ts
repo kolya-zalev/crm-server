@@ -1,17 +1,21 @@
 import {
-  IsArray, IsEmail, IsEnum, IsOptional, IsString, MaxLength, MinLength,
-} from 'class-validator';
-import { PartialType } from '@nestjs/swagger';
+  IsArray,
+  IsEmail,
+  IsEnum,
+  IsOptional,
+  IsString,
+  MinLength,
+} from "class-validator";
+import { PartialType } from "@nestjs/swagger";
 
-const LEAD_STATUSES = ['new', 'contacted', 'qualified', 'won', 'lost'] as const;
+const LeadStatuses = ["new", "contacted", "qualified", "won", "lost"] as const;
 
-// POST /api/leads — что приходит при создании
 export class CreateLeadDto {
   @IsString()
-  @MinLength(1, { message: 'Name is required' })
+  @MinLength(1, { message: "Name is required" })
   name: string;
 
-  @IsEmail({}, { message: 'Invalid email' })
+  @IsEmail({}, { message: "Invalid email" })
   email: string;
 
   @IsOptional()
@@ -19,11 +23,11 @@ export class CreateLeadDto {
   phone?: string;
 
   @IsString()
-  @MinLength(1, { message: 'Company is required' })
+  @MinLength(1, { message: "Company is required" })
   company: string;
 
-  @IsEnum(LEAD_STATUSES, { message: 'Invalid status' })
-  status: (typeof LEAD_STATUSES)[number];
+  @IsEnum(LeadStatuses, { message: "Invalid status" })
+  status: (typeof LeadStatuses)[number];
 
   @IsArray()
   @IsString({ each: true })
@@ -38,5 +42,4 @@ export class CreateLeadDto {
   source?: string;
 }
 
-// PUT /api/leads/:id — все поля опциональные
 export class UpdateLeadDto extends PartialType(CreateLeadDto) {}
