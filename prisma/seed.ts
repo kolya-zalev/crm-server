@@ -202,8 +202,17 @@ async function main() {
       name: "Admin",
       email: "admin@example.com",
       passwordHash,
+      role: "admin"
     },
   });
+  await prisma.user.create({
+    data: {
+      name: "Member",
+      email: "member@example.com",
+      passwordHash,
+      role: "member"
+    }
+  })
 
   // --- SEEDING TEAM MEMBERS ---
   console.log("Seeding team members...");

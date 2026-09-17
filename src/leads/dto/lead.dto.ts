@@ -4,9 +4,11 @@ import {
   IsEnum,
   IsOptional,
   IsString,
+  isUUID,
   MinLength,
 } from "class-validator";
 import { PartialType } from "@nestjs/swagger";
+import { IsUUID, ValidateIf } from "class-validator";
 
 const LeadStatuses = ["new", "contacted", "qualified", "won", "lost"] as const;
 
@@ -42,4 +44,9 @@ export class CreateLeadDto {
   source?: string;
 }
 
-export class UpdateLeadDto extends PartialType(CreateLeadDto) {}
+export class UpdateLeadDto extends PartialType(CreateLeadDto) {
+  @IsOptional()
+  @ValidateIf((_, v) => v !== null)
+  @IsUUID()
+  assignedToId?: string | null;
+}

@@ -1,0 +1,177 @@
+import { Injectable } from "@nestjs/common";
+import { PrismaService } from "src/prisma/prisma.service";
+import { closeStatuses, openStatuses } from "src/leads/lead-status.constants";
+import {
+  dayMs,
+  stuckLeadsLimit,
+  stuckThresholdDays,
+} from "./analytics.constants";
+import type { ClosedByUserRow, LeadAnalytics } from "./analytics.types";
+
+@Injectable()
+export class AnalyticsService {
+  constructor(private readonly prisma: PrismaService) {}
+
+  async getLeadAnalytics(): Promise<LeadAnalytics> {
+    const threshold = new Date(Date.now() - stuckThresholdDays * dayMs);
+
+    const stuckWhere = {
+      status: { in: [...openStatuses] },
+      statusChangedAt: { lt: threshold },
+    };
+
+    const allByStatus = await this.prisma.lead.groupBy({
+      by: ["status"],
+      _count: { _all: true },
+    });
+
+    const won = allByStatus.find((s) => s.status === "won")?._count._all ?? 0;
+    const lost = allByStatus.find((s) => s.status === "lost")?._count._all ?? 0;
+    const closed = won + lost;
+
+    let open = 0;
+    for (const status of openStatuses) {
+      const found = allByStatus.find((s) => s.status === status);
+      open += found?._count._all ?? 0;
+    }
+
+    const winRate = closed === 0 ? 0 : Math.round((won / closed) * 100);
+
+    const stuckByStatus = await this.prisma.lead.groupBy({
+      by: ["status"],
+      where: stuckWhere,
+      _count: { _all: true },
+    });
+
+    const stuckNew =
+      stuckByStatus.find((s) => s.status === "new")?._count._all ?? 0;
+    const stuckContacted =
+      stuckByStatus.find((s) => s.status === "contacted")?._count._all ?? 0;
+    const stuckQualified =
+      stuckByStatus.find((s) => s.status === "qualified")?._count._all ?? 0;
+
+    const stuckLeadsRaw = await this.prisma.lead.findMany({
+      where: stuckWhere,
+      orderBy: { statusChangedAt: "asc" },
+      take: stuckLeadsLimit,
+      select: {
+        id: true,
+        name: true,
+        company: true,
+        status: true,
+        statusChangedAt: true,
+      },
+    });
+
+    const stuckLeads = stuckLeadsRaw.map((lead) => {
+      const daysStuck = Math.floor(
+        (Date.now() - lead.statusChangedAt.getTime()) / dayMs,
+      );
+      return {
+        id: lead.id,
+        name: lead.name,
+        company: lead.company,
+        status: lead.status,
+        daysStuck,
+      };
+    });
+
+    const closedBeforeTracking = await this.prisma.lead.count({
+      where: { status: { in: [...closeStatuses] }, closedById: null },
+    });
+
+    const closedGroups = await this.prisma.lead.groupBy({
+      by: ["closedById", "status"],
+      where: { closedById: { not: null } },
+      _count: { _all: true },
+    });
+
+    const unassignedWhere = {
+      status: { in: [...openStatuses] },
+      assignedToId: null,
+    };
+
+    const countUnassigned = await this.prisma.lead.count({
+      where: unassignedWhere,
+    });
+
+    const unassignedRaw = await this.prisma.lead.findMany({
+      where: unassignedWhere,
+      orderBy: { statusChangedAt: "asc" },
+      take: stuckLeadsLimit,
+      select: {
+        id: true,
+        name: true,
+        company: true,
+        status: true,
+      },
+    });
+
+    const closedBy = await this.buildClosedBy(closedGroups);
+
+    return {
+      totals: { open, won, lost, closed, winRate },
+      unassigned: {
+        total: countUnassigned,
+        leads: unassignedRaw,
+      },
+      stuck: {
+        thresholdDays: stuckThresholdDays,
+        byStatus: {
+          new: stuckNew,
+          contacted: stuckContacted,
+          qualified: stuckQualified,
+        },
+        leads: stuckLeads,
+      },
+      closedBy,
+      closedBeforeTracking,
+    };
+  }
+
+  private async buildClosedBy(
+    groups: {
+      closedById: string | null;
+      status: string;
+      _count: { _all: number };
+    }[],
+  ): Promise<ClosedByUserRow[]> {
+    const statsByUser = new Map<string, { won: number; lost: number }>();
+
+    for (const group of groups) {
+      if (!group.closedById) continue;
+
+      if (!statsByUser.has(group.closedById)) {
+        statsByUser.set(group.closedById, { won: 0, lost: 0 });
+      }
+
+      const stats = statsByUser.get(group.closedById)!;
+      if (group.status === "won") stats.won += group._count._all;
+      if (group.status === "lost") stats.lost += group._count._all;
+    }
+
+    if (statsByUser.size === 0) return [];
+
+    const userIds = [...statsByUser.keys()];
+    const users = await this.prisma.user.findMany({
+      where: { id: { in: userIds } },
+      select: { id: true, name: true },
+    });
+
+    const result: ClosedByUserRow[] = [];
+    for (const [userId, stats] of statsByUser) {
+      const user = users.find((u) => u.id === userId);
+      result.push({
+        userId,
+        userName: user?.name ?? "Unknown",
+        won: stats.won,
+        lost: stats.lost,
+        total: stats.won + stats.lost,
+      });
+    }
+
+    result.sort((a, b) => b.total - a.total);
+
+    return result;
+  }
+}

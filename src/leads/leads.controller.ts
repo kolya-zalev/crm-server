@@ -1,10 +1,18 @@
 import {
-  Body, Controller, Delete, Get, HttpCode, Param, Post, Put,
-} from '@nestjs/common';
-import { LeadsService } from './leads.service';
-import { CreateLeadDto, UpdateLeadDto } from './dto/lead.dto';
+  Body,
+  Controller,
+  Delete,
+  Get,
+  HttpCode,
+  Param,
+  Post,
+  Put,
+} from "@nestjs/common";
+import { LeadsService } from "./leads.service";
+import { CreateLeadDto, UpdateLeadDto } from "./dto/lead.dto";
+import { CurrentUser, type Actor } from "src/auth/current-user.decorator";
 
-@Controller('api/leads')
+@Controller("api/leads")
 export class LeadsController {
   constructor(private readonly leadsService: LeadsService) {}
 
@@ -13,24 +21,28 @@ export class LeadsController {
     return this.leadsService.findAll();
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
+  @Get(":id")
+  findOne(@Param("id") id: string) {
     return this.leadsService.findOne(id);
   }
 
   @Post()
-  create(@Body() dto: CreateLeadDto) {
-    return this.leadsService.create(dto);
+  create(@Body() dto: CreateLeadDto, @CurrentUser() actor: Actor) {
+    return this.leadsService.create(dto, actor);
   }
 
-  @Put(':id')
-  update(@Param('id') id: string, @Body() dto: UpdateLeadDto) {
-    return this.leadsService.update(id, dto);
+  @Put(":id")
+  update(
+    @Param("id") id: string,
+    @Body() dto: UpdateLeadDto,
+    @CurrentUser() actor: Actor,
+  ) {
+    return this.leadsService.update(id, dto, actor);
   }
 
-  @Delete(':id')
+  @Delete(":id")
   @HttpCode(204)
-  remove(@Param('id') id: string) {
+  remove(@Param("id") id: string) {
     return this.leadsService.remove(id);
   }
 }
