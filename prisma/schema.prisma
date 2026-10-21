@@ -17,11 +17,10 @@ model Lead {
   notes  String?
   source String?
   
-
+  createdAt DateTime @default(now())
   statusChangedAt DateTime  @default(now())
   closedAt        DateTime?
   closedById      String?
-  closedBy        User?     @relation("ClosedBy", fields: [closedById], references: [id])
 
   leadNotes  Note[]
   activities Activity[]
@@ -30,7 +29,6 @@ model Lead {
 
 
   assignedToId String?
-  assignedTo   User?   @relation("AssignedTo", fields: [assignedToId], references: [id])
 
   @@index([status, statusChangedAt])
   @@index([closedById])
@@ -57,7 +55,6 @@ model Activity {
 
   userId   String?
   userName String  @default("")
-  user     User?   @relation(fields: [userId], references: [id])
 }
 
 model Task {
@@ -81,17 +78,8 @@ model User {
   role         String   @default("member")
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
+  emailChangedAt DateTime?
 
-  chatMessages ChatMessage[]
-  activities   Activity[]
-  closedLeads  Lead[]        @relation("ClosedBy")
-
-  
-  notifications Notification[] @relation("NotificationRecipient")
-  actedNotifications Notification[] @relation("NotificationActor")
-
-
-  assignedLeads Lead[] @relation("AssignedTo")
 }
 
 model ChatMessage {
@@ -100,7 +88,6 @@ model ChatMessage {
   authorId String
   authorName String
   createdAt DateTime @default(now())
-  author User @relation(fields: [authorId], references: [id])
 }
 
 model TeamMember {
@@ -118,13 +105,11 @@ model TeamMember {
 model Notification {
   id        String   @id @default(uuid())
   userId    String
-  user      User     @relation("NotificationRecipient", fields: [userId], references: [id], onDelete: Cascade)
   type      String
   message   String
   leadId    String?
   lead      Lead?    @relation(fields: [leadId], references: [id], onDelete: SetNull)
   actorId   String?
-  actor     User?    @relation("NotificationActor", fields: [actorId], references: [id], onDelete: SetNull)
   actorName String   @default("")
   isRead    Boolean  @default(false)
   createdAt DateTime @default(now())

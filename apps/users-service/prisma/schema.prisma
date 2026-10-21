@@ -1,0 +1,31 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/client"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id             String    @id @default(uuid())
+  email          String    @unique
+  passwordHash   String
+  name           String
+  role           String    @default("member")
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  emailChangedAt DateTime?
+}
+
+model TeamMember {
+  id        String    @id @default(uuid())
+  name      String    @default("")
+  email     String    @unique
+  role      String
+  status    String
+  invitedAt DateTime?
+  joinedAt  DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}

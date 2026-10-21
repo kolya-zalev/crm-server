@@ -10,21 +10,56 @@ services:
       POSTGRES_DB: crm_db
     volumes:
       - pgdata:/var/lib/postgresql/data
+      # создаёт users_db при первом запуске (на пустом томе)
+      - ./docker/postgres-init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    # остальные ждут, пока Postgres реально начнёт принимать подключения
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U crm -d crm_db"]
+      interval: 2s
+      timeout: 3s
+      retries: 15
 
+  # микросервис пользователей — без "ports": снаружи недоступен, только из docker-сети
+  users-service:
+    build:
+      context: .
+      args:
+        APP: users-service
+    container_name: crm-users-service
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      - NODE_ENV=production
+      - USERS_DATABASE_URL=postgresql://crm:crm123@db:5432/users_db
+      - USERS_SERVICE_PORT=4002
+      # тот же секрет, что у api: users-service подписывает токены, api их проверяет
+      - JWT_SECRET=${JWT_SECRET:-super-long-random-secret-at-least-32-characters}
+
+  # BFF — единственный, кого видит фронт
   api:
-    build: .
+    build:
+      context: .
+      args:
+        APP: crm-server
     container_name: crm-backend
     ports:
       - "3001:3001"
     depends_on:
-      - db
+      db:
+        condition: service_healthy
+      users-service:
+        condition: service_started
     volumes:
       - ./data:/app/data
     environment:
       - PORT=3001
       - NODE_ENV=production
       - DATABASE_URL=postgresql://crm:crm123@db:5432/crm_db
-      - JWT_SECRET=super-long-random-secret-at-least-32-characters
+      - JWT_SECRET=${JWT_SECRET:-super-long-random-secret-at-least-32-characters}
+      # имя сервиса в compose = его адрес в docker-сети
+      - USERS_SERVICE_HOST=users-service
+      - USERS_SERVICE_PORT=4002
 
 volumes:
   pgdata:

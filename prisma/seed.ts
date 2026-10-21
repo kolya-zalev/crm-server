@@ -1,12 +1,13 @@
 import "dotenv/config";
 import { PrismaClient } from "@prisma/client";
 import * as bcrypt from "bcrypt";
-import { getPrismaClientOptions } from "../src/prisma/prisma-client-options";
-
+import { getPrismaClientOptions } from "../apps/crm-server/src/prisma/prisma-client-options";
 const prisma = new PrismaClient(getPrismaClientOptions());
 
 async function main() {
   console.log("🌱 Cleaning database...");
+  await prisma.notification.deleteMany();
+  await prisma.chatMessage.deleteMany();
   await prisma.task.deleteMany();
   await prisma.activity.deleteMany();
   await prisma.note.deleteMany();
@@ -202,7 +203,15 @@ async function main() {
       name: "Admin",
       email: "admin@example.com",
       passwordHash,
-      role: "admin"
+      role: "admin",
+    },
+  });
+  await prisma.user.create({
+    data: {
+      name: "Manager",
+      email: "manager@example.com",
+      passwordHash,
+      role: "manager",
     },
   });
   await prisma.user.create({
@@ -210,9 +219,9 @@ async function main() {
       name: "Member",
       email: "member@example.com",
       passwordHash,
-      role: "member"
-    }
-  })
+      role: "member",
+    },
+  });
 
   // --- SEEDING TEAM MEMBERS ---
   console.log("Seeding team members...");

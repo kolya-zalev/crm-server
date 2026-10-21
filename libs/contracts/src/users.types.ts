@@ -1,0 +1,105 @@
+import type { messages } from "./messages";
+import type { Permission, Role } from "./permissions.constants";
+
+export type UserRef = { id: string; name: string };
+
+export type PublicUser = {
+  id: string;
+  name: string;
+  email: string;
+  role: string;
+  emailChangedAt: string | null;
+  nextEmailChangeAt: string | null;
+};
+
+export type AssignableUser = UserRef & { role: string };
+
+export type TeamMemberStatus = "active" | "invited" | "disabled";
+
+export type TeamMember = {
+  id: string;
+  name: string;
+  email: string;
+  role: string;
+  status: string;
+  invitedAt: string | null;
+  joinedAt: string | null;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type RegisterPayload = { name: string; email: string; password: string };
+export type RegisterResponse = { id: string; email: string; name: string };
+
+export type LoginPayload = { email: string; password: string };
+export type LoginResponse = {
+  accessToken: string;
+  user: {
+    id: string;
+    email: string;
+    name: string;
+    role: string;
+    permissions: Permission[];
+  };
+};
+
+export type GetMePayload = { userId: string };
+
+export type UpdateMePayload = { userId: string; name?: string; email?: string };
+
+export type ChangePasswordPayload = {
+  userId: string;
+  currentPassword: string;
+  newPassword: string;
+};
+export type ChangePasswordResponse = { ok: true };
+
+export type GetAssignablePayload = { userId: string };
+
+export type FindByIdsPayload = { ids: string[] };
+
+export type FindByPermissionPayload = { permission: Permission };
+
+
+export type TeamInvitePayload = { email: string; role: Role };
+
+export type TeamUpdatePayload = {
+  id: string;
+  status?: TeamMemberStatus;
+  role?: Role;
+};
+
+type Empty = Record<string, never>;
+
+export type UsersContract = {
+  [messages.authRegister]: {
+    payload: RegisterPayload;
+    response: RegisterResponse;
+  };
+  [messages.authLogin]: { payload: LoginPayload; response: LoginResponse };
+
+  [messages.usersGetMe]: { payload: GetMePayload; response: PublicUser };
+  [messages.usersUpdateMe]: { payload: UpdateMePayload; response: PublicUser };
+  [messages.usersChangePassword]: {
+    payload: ChangePasswordPayload;
+    response: ChangePasswordResponse;
+  };
+  [messages.usersListAssignable]: {
+    payload: Empty;
+    response: AssignableUser[];
+  };
+  [messages.usersGetAssignable]: {
+    payload: GetAssignablePayload;
+    response: UserRef;
+  };
+  [messages.usersFindByIds]: { payload: FindByIdsPayload; response: UserRef[] };
+  [messages.usersFindByPermission]: {
+    payload: FindByPermissionPayload;
+    response: { id: string }[];
+  };
+  [messages.usersListAll]: { payload: Empty; response: UserRef[] };
+
+  [messages.teamFindAll]: { payload: Empty; response: TeamMember[] };
+  [messages.teamInvite]: { payload: TeamInvitePayload; response: TeamMember };
+  [messages.teamUpdate]: { payload: TeamUpdatePayload; response: TeamMember };
+};

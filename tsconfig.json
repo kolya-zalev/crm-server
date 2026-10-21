@@ -18,6 +18,16 @@
     "forceConsistentCasingInFileNames": true,
     "noFallthroughCasesInSwitch": true,
     "esModuleInterop": true,
-    "types": ["node"]
+    "types": [
+      "node"
+    ],
+    "paths": {
+      "@app/contracts": [
+        "libs/contracts/src"
+      ],
+      "@app/contracts/*": [
+        "libs/contracts/src/*"
+      ]
+    }
   }
 }

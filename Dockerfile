@@ -1,21 +1,25 @@
+# Один Dockerfile для обоих приложений монорепо.
+# Какое собирать — задаёт build-arg APP (см. docker-compose.yml):
+#   APP=crm-server     → BFF
+#   APP=users-service  → микросервис пользователей
 
 FROM node:20-alpine
 
+ARG APP
+ENV APP=${APP}
 
 WORKDIR /app
-
 
 COPY package*.json ./
 RUN npm install
 
-
 COPY . .
 
+# Prisma-клиенты обеих схем (у users-service свой, в apps/users-service/generated)
 RUN npx prisma generate
-RUN npm run build
+RUN npx prisma generate --config apps/users-service/prisma.config.ts
 
+RUN npx nest build ${APP}
 
-EXPOSE 3001
-
-
-CMD ["node", "dist/src/main"]
+RUN chmod +x docker/start.sh
+CMD ["./docker/start.sh"]
