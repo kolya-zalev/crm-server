@@ -1,1 +1,2 @@
 CREATE DATABASE users_db;
+CREATE DATABASE leads_db;

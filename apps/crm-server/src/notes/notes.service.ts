@@ -1,50 +1,25 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
-import { PrismaService } from "../prisma/prisma.service";
+import { Injectable } from "@nestjs/common";
+import { leadsMessages, type Actor, type NoteDto } from "@app/contracts";
+import { LeadsClient } from "../leads/leads.client";
 import { CreateNoteDto } from "./dto/note.dto";
 
 @Injectable()
 export class NotesService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly leads: LeadsClient) {}
 
-  async findByLead(leadId: string) {
-    return this.prisma.note.findMany({
-      where: { leadId },
-      orderBy: { createdAt: "desc" },
+  findByLead(leadId: string): Promise<NoteDto[]> {
+    return this.leads.send(leadsMessages.notesFindByLead, { leadId });
+  }
+
+  create(leadId: string, dto: CreateNoteDto, actor: Actor): Promise<NoteDto> {
+    return this.leads.send(leadsMessages.notesCreate, {
+      actor,
+      leadId,
+      text: dto.text,
     });
   }
 
-  async create(leadId: string, dto: CreateNoteDto) {
-    const note = await this.prisma.note.create({
-      data: {
-        leadId,
-        text: dto.text,
-      },
-    });
-
-    await this.prisma.activity.create({
-      data: {
-        leadId,
-        type: "note_added",
-        description: "Note added",
-      },
-    });
-
-    return note;
-  }
-
-  async remove(leadId: string, noteId: string): Promise<void> {
-    const note = await this.prisma.note.findFirst({
-      where: { id: noteId, leadId },
-    });
-    if (!note) throw new NotFoundException(`Note ${noteId} not found`);
-
-    await this.prisma.note.delete({ where: { id: noteId } });
-    await this.prisma.activity.create({
-      data: {
-        leadId,
-        type: "note_deleted",
-        description: "Note deleted",
-      },
-    });
+  async remove(leadId: string, noteId: string, actor: Actor): Promise<void> {
+    await this.leads.send(leadsMessages.notesRemove, { actor, leadId, noteId });
   }
 }

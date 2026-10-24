@@ -1,5 +1,5 @@
 import type { messages } from "./messages";
-import type { Permission, Role } from "./permissions.constants";
+import type { Permission, Role } from "../permissions.constants";
 
 export type UserRef = { id: string; name: string };
 
@@ -59,7 +59,6 @@ export type GetAssignablePayload = { userId: string };
 export type FindByIdsPayload = { ids: string[] };
 
 export type FindByPermissionPayload = { permission: Permission };
-
 
 export type TeamInvitePayload = { email: string; role: Role };
 

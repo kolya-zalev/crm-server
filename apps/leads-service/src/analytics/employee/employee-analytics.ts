@@ -2,7 +2,7 @@ import { dayMs } from "../analytics.constants";
 import type {
   EmployeeAnalyticsRow,
   EmployeeStageCounts,
-} from "../analytics.types";
+} from "@app/contracts";
 
 export type EmployeeUserInput = { id: string; name: string };
 

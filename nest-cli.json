@@ -36,6 +36,24 @@
       "compilerOptions": {
         "tsConfigPath": "libs/contracts/tsconfig.lib.json"
       }
+    },
+    "common": {
+      "type": "library",
+      "root": "libs/common",
+      "entryFile": "index",
+      "sourceRoot": "libs/common/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/common/tsconfig.lib.json"
+      }
+    },
+    "leads-service": {
+      "type": "application",
+      "root": "apps/leads-service",
+      "entryFile": "main",
+      "sourceRoot": "apps/leads-service/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/leads-service/tsconfig.app.json"
+      }
     }
   }
 }

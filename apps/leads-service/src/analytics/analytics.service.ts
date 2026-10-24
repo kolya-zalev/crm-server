@@ -1,29 +1,31 @@
 import { Injectable } from "@nestjs/common";
+import {
+  closeStatuses,
+  openStatuses,
+  type AnalyticsEmployeesPayload,
+  type AnalyticsLeadsPayload,
+  type ClosedByUserRow,
+  type EmployeeAnalytics,
+  type LeadAnalytics,
+  type LeadByUserRow,
+  type UserRef,
+} from "@app/contracts";
 import { PrismaService } from "../prisma/prisma.service";
-import { closeStatuses, openStatuses } from "../leads/lead-status.constants";
 import {
   dayMs,
+  smallSampleThreshold,
   stuckLeadsLimit,
   stuckThresholdDays,
 } from "./analytics.constants";
-import type {
-  ClosedByUserRow,
-  LeadAnalytics,
-  LeadByUserRow,
-} from "./analytics.types";
-import { smallSampleThreshold } from "./analytics.constants";
-import type { EmployeeAnalytics } from "./analytics.types";
 import { buildEmployeeAnalytics } from "./employee/employee-analytics";
-import { UsersService } from "../users/users.service";
 
 @Injectable()
 export class AnalyticsService {
-  constructor(
-    private readonly prisma: PrismaService,
-    private readonly users: UsersService,
-  ) {}
+  constructor(private readonly prisma: PrismaService) {}
 
-  async getLeadAnalytics(): Promise<LeadAnalytics> {
+  async getLeadAnalytics({
+    users,
+  }: AnalyticsLeadsPayload): Promise<LeadAnalytics> {
     const threshold = new Date(Date.now() - stuckThresholdDays * dayMs);
 
     const stuckWhere = {
@@ -118,9 +120,9 @@ export class AnalyticsService {
       },
     });
 
-    const closedBy = await this.buildClosedBy(closedGroups);
+    const closedBy = await this.buildClosedBy(closedGroups, users);
 
-    const leadsByUser = await this.buildLeadsByUser();
+    const leadsByUser = await this.buildLeadsByUser(users);
 
     return {
       totals: { open, won, lost, closed, winRate },
@@ -142,11 +144,16 @@ export class AnalyticsService {
       leadsByUser,
     };
   }
-  async getEmployeeAnalytics(from: Date, to: Date): Promise<EmployeeAnalytics> {
+  async getEmployeeAnalytics({
+    from: fromIso,
+    to: toIso,
+    users,
+  }: AnalyticsEmployeesPayload): Promise<EmployeeAnalytics> {
+    const from = new Date(fromIso);
+    const to = new Date(toIso);
     const now = new Date();
 
-    const [users, openLeads, createdLeads, closedLeadsRaw] = await Promise.all([
-      this.users.listAll(),
+    const [openLeads, createdLeads, closedLeadsRaw] = await Promise.all([
       this.prisma.lead.findMany({
         where: { status: { in: [...openStatuses] } },
         select: { assignedToId: true, status: true, statusChangedAt: true },
@@ -186,17 +193,11 @@ export class AnalyticsService {
       ...built,
     };
   }
-  private async buildLeadsByUser(): Promise<LeadByUserRow[]> {
+  private async buildLeadsByUser(users: UserRef[]): Promise<LeadByUserRow[]> {
     const groups = await this.prisma.lead.groupBy({
       by: ["assignedToId"],
       _count: { _all: true },
     });
-
-    const userIds = groups
-      .map((group) => group.assignedToId)
-      .filter((id): id is string => id !== null);
-
-    const users = await this.users.findByIds(userIds);
 
     const rows: LeadByUserRow[] = groups.map((group) => {
       if (!group.assignedToId) {
@@ -225,6 +226,7 @@ export class AnalyticsService {
       status: string;
       _count: { _all: number };
     }[],
+    users: UserRef[],
   ): Promise<ClosedByUserRow[]> {
     const statsByUser = new Map<string, { won: number; lost: number }>();
 
@@ -242,8 +244,6 @@ export class AnalyticsService {
 
     if (statsByUser.size === 0) return [];
 
-    const userIds = [...statsByUser.keys()];
-    const users = await this.users.findByIds(userIds);
 
     const result: ClosedByUserRow[] = [];
     for (const [userId, stats] of statsByUser) {

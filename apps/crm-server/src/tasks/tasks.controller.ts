@@ -8,15 +8,15 @@ import {
   Post,
   Put,
 } from "@nestjs/common";
-import { TasksService } from "./tasks.service";
 import { CreateTaskDto, UpdateTaskDto } from "./dto/task.dto";
 import { CurrentUser, type Actor } from "../auth/current-user.decorator";
 import { RequirePermissions } from "../auth/permissions.decorator";
+import { TasksFacade } from "./tasks.facade";
 
 // /api/tasks — все задачи + update/delete по taskId
 @Controller("api/tasks")
 export class TasksController {
-  constructor(private readonly tasksService: TasksService) {}
+  constructor(private readonly tasksService: TasksFacade) {}
 
   @Get()
   @RequirePermissions("lead:read")
@@ -39,7 +39,7 @@ export class TasksController {
 // /api/leads/:id/tasks — задачи лида + создание
 @Controller("api/leads/:id/tasks")
 export class LeadTasksController {
-  constructor(private readonly tasksService: TasksService) {}
+  constructor(private readonly tasksService: TasksFacade) {}
 
   @Get()
   @RequirePermissions("lead:read")

@@ -21,13 +21,11 @@ model Lead {
   statusChangedAt DateTime  @default(now())
   closedAt        DateTime?
   closedById      String?
-
   leadNotes  Note[]
   activities Activity[]
   tasks      Task[]
-  notifications Notification[]
 
-
+  assignedToName String?
   assignedToId String?
 
   @@index([status, statusChangedAt])
@@ -108,7 +106,6 @@ model Notification {
   type      String
   message   String
   leadId    String?
-  lead      Lead?    @relation(fields: [leadId], references: [id], onDelete: SetNull)
   actorId   String?
   actorName String   @default("")
   isRead    Boolean  @default(false)

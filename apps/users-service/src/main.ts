@@ -1,12 +1,9 @@
 import "dotenv/config";
 import { NestFactory } from "@nestjs/core";
 import { MicroserviceOptions, Transport } from "@nestjs/microservices";
-import {
-  USERS_SERVICE_DEFAULT_PORT,
-  USERS_SERVICE_PORT,
-} from "@app/contracts";
+import { USERS_SERVICE_DEFAULT_PORT, USERS_SERVICE_PORT } from "@app/contracts";
 import { UsersServiceModule } from "./users-service.module";
-import { HttpToRpcExceptionFilter } from "./common/http-to-rpc.filter";
+import { HttpToRpcExceptionFilter } from "@app/common";
 
 async function bootstrap() {
   const port =
@@ -20,7 +17,6 @@ async function bootstrap() {
     },
   );
 
-  // ошибки сервисов (401, 404, ...) → объект, понятный BFF
   app.useGlobalFilters(new HttpToRpcExceptionFilter());
 
   await app.listen();

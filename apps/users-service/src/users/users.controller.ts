@@ -19,7 +19,6 @@ import { UsersService } from "./users.service";
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
-  // профиль текущего юзера (userId кладёт BFF из токена)
 
   @MessagePattern(messages.usersGetMe)
   getMe(@Payload() { userId }: GetMePayload): Promise<PublicUser> {
@@ -38,7 +37,6 @@ export class UsersController {
     return this.usersService.changePassword(payload);
   }
 
-  // запросы от других модулей BFF (leads, notifications, analytics)
 
   @MessagePattern(messages.usersListAssignable)
   listAssignable(): Promise<AssignableUser[]> {

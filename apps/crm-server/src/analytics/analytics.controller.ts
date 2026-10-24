@@ -1,20 +1,22 @@
 import { Controller, Get, Query } from "@nestjs/common";
-import { AnalyticsService } from "./analytics.service";
 import { RequirePermissions } from "../auth/permissions.decorator";
 import { EmployeeAnalyticsQueryDto } from "./dto/employee-analytics-query.dto";
 import { resolvedPeriod } from "./employee/period";
+import { AnalyticsFacade } from "./analytics.facade";
+
 @Controller("api/analytics")
 @RequirePermissions("analytics:view")
 export class AnalyticsController {
-  constructor(private readonly analyticsService: AnalyticsService) {}
+  constructor(private readonly analyticsFacade: AnalyticsFacade) {}
 
   @Get("leads")
   getLeadAnalytics() {
-    return this.analyticsService.getLeadAnalytics();
+    return this.analyticsFacade.getLeadAnalytics();
   }
+
   @Get("employees")
   getEmployeeAnalytics(@Query() query: EmployeeAnalyticsQueryDto) {
     const { from, to } = resolvedPeriod(query);
-    return this.analyticsService.getEmployeeAnalytics(from, to);
+    return this.analyticsFacade.getEmployeeAnalytics(from, to);
   }
 }

@@ -4,3 +4,4 @@ dist
 
 /generated/prisma
 apps/users-service/generated
+apps/leads-service/generated

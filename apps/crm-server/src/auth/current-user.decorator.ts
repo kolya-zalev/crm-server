@@ -1,5 +1,5 @@
 import { createParamDecorator, ExecutionContext } from "@nestjs/common";
-import type { Actor } from "@app/contracts/actor";
+import type { Actor } from "@app/contracts";
 
 export type { Actor } from "@app/contracts";
 export const CurrentUser = createParamDecorator(

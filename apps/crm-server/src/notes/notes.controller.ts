@@ -10,6 +10,7 @@ import {
 import { NotesService } from "./notes.service";
 import { CreateNoteDto } from "./dto/note.dto";
 import { RequirePermissions } from "../auth/permissions.decorator";
+import { CurrentUser, type Actor } from "../auth/current-user.decorator";
 
 @Controller("api/leads/:id/notes")
 export class NotesController {
@@ -22,13 +23,21 @@ export class NotesController {
   }
 
   @Post()
-  create(@Param("id") leadId: string, @Body() dto: CreateNoteDto) {
-    return this.notesService.create(leadId, dto);
+  create(
+    @Param("id") leadId: string,
+    @Body() dto: CreateNoteDto,
+    @CurrentUser() actor: Actor,
+  ) {
+    return this.notesService.create(leadId, dto, actor);
   }
 
   @Delete(":noteId")
   @HttpCode(204)
-  remove(@Param("id") leadId: string, @Param("noteId") noteId: string) {
-    return this.notesService.remove(leadId, noteId);
+  remove(
+    @Param("id") leadId: string,
+    @Param("noteId") noteId: string,
+    @CurrentUser() actor: Actor,
+  ) {
+    return this.notesService.remove(leadId, noteId, actor);
   }
 }

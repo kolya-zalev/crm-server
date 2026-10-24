@@ -1,14 +1,12 @@
 import { Injectable } from "@nestjs/common";
-import { PrismaService } from "../prisma/prisma.service";
+import { leadsMessages, type ActivityDto } from "@app/contracts";
+import { LeadsClient } from "../leads/leads.client";
 
 @Injectable()
 export class ActivitiesService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly leads: LeadsClient) {}
 
-  async findByLead(leadId: string) {
-    return this.prisma.activity.findMany({
-      where: { leadId },
-      orderBy: { createdAt: "desc" },
-    });
+  findByLead(leadId: string): Promise<ActivityDto[]> {
+    return this.leads.send(leadsMessages.activitiesFindByLead, { leadId });
   }
 }

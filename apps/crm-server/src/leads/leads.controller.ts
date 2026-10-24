@@ -8,13 +8,13 @@ import {
   Post,
   Put,
 } from "@nestjs/common";
-import { LeadsService } from "./leads.service";
 import { CreateLeadDto, UpdateLeadDto } from "./dto/lead.dto";
 import { CurrentUser, type Actor } from "../auth/current-user.decorator";
 import { RequirePermissions } from "../auth/permissions.decorator";
+import { LeadsFacade } from "./leads.facade";
 @Controller("api/leads")
 export class LeadsController {
-  constructor(private readonly leadsService: LeadsService) {}
+  constructor(private readonly leadsService: LeadsFacade) {}
 
   @Get()
   @RequirePermissions("lead:read")

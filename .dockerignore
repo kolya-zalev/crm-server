@@ -3,3 +3,4 @@ dist
 .git
 .env
 apps/users-service/generated
+apps/leads-service/generated

@@ -10,7 +10,7 @@ services:
       POSTGRES_DB: crm_db
     volumes:
       - pgdata:/var/lib/postgresql/data
-      # создаёт users_db при первом запуске (на пустом томе)
+      # создаёт users_db и leads_db при первом запуске (на пустом томе)
       - ./docker/postgres-init.sql:/docker-entrypoint-initdb.d/init.sql:ro
     # остальные ждут, пока Postgres реально начнёт принимать подключения
     healthcheck:
@@ -36,6 +36,21 @@ services:
       # тот же секрет, что у api: users-service подписывает токены, api их проверяет
       - JWT_SECRET=${JWT_SECRET:-super-long-random-secret-at-least-32-characters}
 
+  # микросервис лидов — тоже без "ports". JWT_SECRET ему не нужен: токены проверяет api
+  leads-service:
+    build:
+      context: .
+      args:
+        APP: leads-service
+    container_name: crm-leads-service
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      - NODE_ENV=production
+      - LEADS_DATABASE_URL=postgresql://crm:crm123@db:5432/leads_db
+      - LEADS_SERVICE_PORT=4003
+
   # BFF — единственный, кого видит фронт
   api:
     build:
@@ -50,6 +65,8 @@ services:
         condition: service_healthy
       users-service:
         condition: service_started
+      leads-service:
+        condition: service_started
     volumes:
       - ./data:/app/data
     environment:
@@ -60,6 +77,8 @@ services:
       # имя сервиса в compose = его адрес в docker-сети
       - USERS_SERVICE_HOST=users-service
       - USERS_SERVICE_PORT=4002
+      - LEADS_SERVICE_HOST=leads-service
+      - LEADS_SERVICE_PORT=4003
 
 volumes:
   pgdata:
