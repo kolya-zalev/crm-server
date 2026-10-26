@@ -13,7 +13,7 @@ import { PermissionsGuard } from "./auth/permissions.guard";
 import { AnalyticsModule } from "./analytics/analytics.module";
 import { UsersModule } from "./users/users.module";
 import { NotificationsModule } from "./notifications/notifications.module";
-
+import { RolesModule } from "./roles/roles.module";
 @Module({
   imports: [
     PrismaModule,
@@ -23,6 +23,7 @@ import { NotificationsModule } from "./notifications/notifications.module";
     ActivitiesModule, // /api/leads/:id/activities
     TasksModule, // /api/tasks + /api/leads/:id/tasks
     TeamModule, // /api/team
+    RolesModule,
     ChatModule,
     AnalyticsModule,
     UsersModule,

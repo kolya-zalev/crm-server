@@ -1,6 +1,7 @@
 // общее для всех сервисов
 export * from "./actor";
 export * from "./permissions.constants";
+export * from "./roles.types";
 
 // users-service
 export * from "./users/clients";

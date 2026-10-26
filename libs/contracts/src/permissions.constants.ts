@@ -11,6 +11,7 @@ export const permissions = {
   userListAssignable: "user:list-assignable",
   teamRead: "team:read",
   teamManage: "team:manage",
+  roleRead: "role:read",
   analyticsView: "analytics:view",
   notificationLeadEvents: "notification:lead-events",
 } as const;
@@ -44,7 +45,6 @@ export const rolePermissions: Record<Role, readonly Permission[]> = {
     permissions.teamRead,
   ],
 };
-
 
 export const getPermissionsForRole = (role: string): Permission[] =>
   role in rolePermissions ? [...rolePermissions[role as Role]] : [];
