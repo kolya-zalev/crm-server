@@ -1,4 +1,6 @@
-import { Body, Controller, Get, Patch, Post } from "@nestjs/common";
+import type { IncomingHttpHeaders } from "node:http";
+import { Body, Controller, Get, Patch, Post, Req } from "@nestjs/common";
+import { fromNodeHeaders } from "better-auth/node";
 import { Actor, CurrentUser } from "../auth/current-user.decorator";
 import { RequirePermissions } from "../auth/permissions.decorator";
 import { ChangePasswordDto } from "./dto/change-password.dto";
@@ -23,7 +25,13 @@ export class UsersController {
     return this.usersService.updateMe(actor.id, dto);
   }
   @Post("me/password")
-  changePassword(@CurrentUser() actor: Actor, @Body() dto: ChangePasswordDto) {
-    return this.usersService.changePassword(actor.id, dto);
+  changePassword(
+    @Req() request: { headers: IncomingHttpHeaders },
+    @Body() dto: ChangePasswordDto,
+  ) {
+    return this.usersService.changePassword(
+      fromNodeHeaders(request.headers),
+      dto,
+    );
   }
 }

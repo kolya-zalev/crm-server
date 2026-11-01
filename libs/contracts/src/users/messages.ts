@@ -1,15 +1,12 @@
 export const messages = {
-  authRegister: "auth.register",
-  authLogin: "auth.login",
-
   usersGetMe: "users.getMe",
   usersUpdateMe: "users.updateMe",
-  usersChangePassword: "users.changePassword",
   usersListAssignable: "users.listAssignable",
   usersGetAssignable: "users.getAssignable",
   usersFindByIds: "users.findByIds",
   usersFindByPermission: "users.findByPermission",
   usersListAll: "users.listAll",
+  usersUpsert: "users.upsert",
 
   teamFindAll: "team.findAll",
   teamInvite: "team.invite",

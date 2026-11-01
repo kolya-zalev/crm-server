@@ -6,7 +6,7 @@ import { ActivitiesModule } from "./activities/activities.module";
 import { TasksModule } from "./tasks/tasks.module";
 import { AuthModule } from "./auth/auth.module";
 import { APP_GUARD } from "@nestjs/core";
-import { JwtAuthGuard } from "./auth/jwt-auth.guard";
+import { SessionAuthGuard } from "./auth/session-auth.guard";
 import { TeamModule } from "./team/team.module";
 import { ChatModule } from "./chat/chat.module";
 import { PermissionsGuard } from "./auth/permissions.guard";
@@ -14,6 +14,7 @@ import { AnalyticsModule } from "./analytics/analytics.module";
 import { UsersModule } from "./users/users.module";
 import { NotificationsModule } from "./notifications/notifications.module";
 import { RolesModule } from "./roles/roles.module";
+import { BullModule } from "@nestjs/bullmq";
 @Module({
   imports: [
     PrismaModule,
@@ -28,11 +29,17 @@ import { RolesModule } from "./roles/roles.module";
     AnalyticsModule,
     UsersModule,
     NotificationsModule,
+    BullModule.forRoot({
+      connection: {
+        host: "localhost",
+        port: "6379",
+      },
+    }),
   ],
   providers: [
     {
       provide: APP_GUARD,
-      useClass: JwtAuthGuard,
+      useClass: SessionAuthGuard,
     },
     {
       provide: APP_GUARD,

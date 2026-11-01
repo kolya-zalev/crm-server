@@ -1,4 +1,5 @@
-import { Injectable } from "@nestjs/common";
+import { HttpException, Inject, Injectable } from "@nestjs/common";
+import { APIError } from "better-auth/api";
 import {
   messages,
   type AssignableUser,
@@ -10,10 +11,13 @@ import {
 import { UpdateMeDto } from "./dto/update-me.dto";
 import { ChangePasswordDto } from "./dto/change-password.dto";
 import { UsersClient } from "./users.client";
-
+import { AUTH, type Auth } from "../auth/better-auth";
 @Injectable()
 export class UsersService {
-  constructor(private readonly users: UsersClient) {}
+  constructor(
+    private readonly users: UsersClient,
+    @Inject(AUTH) private readonly auth: Auth,
+  ) {}
 
   listAssignable(): Promise<AssignableUser[]> {
     return this.users.send(messages.usersListAssignable, {});
@@ -40,14 +44,31 @@ export class UsersService {
     return this.users.send(messages.usersGetMe, { userId });
   }
 
-  updateMe(userId: string, dto: UpdateMeDto): Promise<PublicUser> {
-    return this.users.send(messages.usersUpdateMe, { userId, ...dto });
+  async updateMe(userId: string, dto: UpdateMeDto): Promise<PublicUser> {
+    const user = await this.users.send(messages.usersUpdateMe, {
+      userId,
+      ...dto,
+    });
+    const context = await this.auth.$context;
+    await context.internalAdapter.updateUser(userId, {
+      name: user.name,
+      email: user.email,
+    });
+    return user;
   }
 
-  changePassword(
-    userId: string,
+  async changePassword(
+    headers: Headers,
     dto: ChangePasswordDto,
   ): Promise<ChangePasswordResponse> {
-    return this.users.send(messages.usersChangePassword, { userId, ...dto });
+    try {
+      await this.auth.api.changePassword({ headers, body: dto });
+    } catch (error) {
+      if (error instanceof APIError) {
+        throw new HttpException(error.body ?? error.message, error.statusCode);
+      }
+      throw error;
+    }
+    return { ok: true };
   }
 }

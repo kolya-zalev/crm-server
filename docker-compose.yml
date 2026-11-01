@@ -33,8 +33,6 @@ services:
       - NODE_ENV=production
       - USERS_DATABASE_URL=postgresql://crm:crm123@db:5432/users_db
       - USERS_SERVICE_PORT=4002
-      # тот же секрет, что у api: users-service подписывает токены, api их проверяет
-      - JWT_SECRET=${JWT_SECRET:-super-long-random-secret-at-least-32-characters}
 
   # микросервис лидов — тоже без "ports". JWT_SECRET ему не нужен: токены проверяет api
   leads-service:
@@ -73,8 +71,10 @@ services:
       - PORT=3001
       - NODE_ENV=production
       - DATABASE_URL=postgresql://crm:crm123@db:5432/crm_db
-      - JWT_SECRET=${JWT_SECRET:-super-long-random-secret-at-least-32-characters}
-      # имя сервиса в compose = его адрес в docker-сети
+      - AUTH_DATABASE_URL=postgresql://crm:crm123@db:5432/auth_db
+      - BETTER_AUTH_SECRET=${BETTER_AUTH_SECRET:-change-me-to-a-long-random-secret-32-chars}
+      - BETTER_AUTH_URL=http://localhost:3001
+      - FRONTEND_URL=http://localhost:3000
       - USERS_SERVICE_HOST=users-service
       - USERS_SERVICE_PORT=4002
       - LEADS_SERVICE_HOST=leads-service

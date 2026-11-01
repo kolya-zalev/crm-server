@@ -19,6 +19,7 @@ COPY . .
 RUN npx prisma generate
 RUN npx prisma generate --config apps/users-service/prisma.config.ts
 RUN npx prisma generate --config apps/leads-service/prisma.config.ts
+RUN npx prisma generate --config apps/crm-server/prisma-auth/prisma-auth.config.ts
 
 RUN npx nest build ${APP}
 

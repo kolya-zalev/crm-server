@@ -1,14 +1,22 @@
-import { Module } from "@nestjs/common";
-import { PassportModule } from "@nestjs/passport";
+import { Global, Module } from "@nestjs/common";
 import { UsersModule } from "../users/users.module";
-import { AuthService } from "./auth.service";
-import { JwtStrategy } from "./jwt.strategy";
-import { AuthController } from "./auth.controller";
+import { UsersClient } from "../users/users.client";
+import { AuthPrismaService } from "./auth-prisma.service";
+import { AUTH, createAuth } from "./better-auth";
 
+// Global: AUTH нужен и guard'у в AppModule, и UsersService (смена пароля).
+// Если импортировать AuthModule в UsersModule, получится цикл: AuthModule уже импортирует UsersModule
+@Global()
 @Module({
-  imports: [PassportModule, UsersModule],
-  controllers: [AuthController],
-  providers: [AuthService, JwtStrategy],
-  exports: [AuthService],
+  imports: [UsersModule],
+  providers: [
+    AuthPrismaService,
+    {
+      provide: AUTH,
+      useFactory: createAuth,
+      inject: [AuthPrismaService, UsersClient],
+    },
+  ],
+  exports: [AUTH],
 })
 export class AuthModule {}

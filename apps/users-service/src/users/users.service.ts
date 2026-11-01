@@ -4,16 +4,14 @@ import {
   Injectable,
   NotFoundException,
 } from "@nestjs/common";
-import * as bcrypt from "bcrypt";
 import {
   getPermissionsForRole,
   getRolesWithPermission,
   permissions,
   type AssignableUser,
-  type ChangePasswordPayload,
-  type ChangePasswordResponse,
   type Permission,
   type PublicUser,
+  type UpsertUserPayload,
   type UpdateMePayload,
   type UserRef,
 } from "@app/contracts";
@@ -31,6 +29,14 @@ export class UsersService {
       },
       select: { id: true, name: true, role: true },
       orderBy: { name: "asc" },
+    });
+  }
+  upsert({ id, email, name, role }: UpsertUserPayload): Promise<UserRef> {
+    return this.prisma.user.upsert({
+      where: { id },
+      create: { id, email, name, role },
+      update: { email, name, role },
+      select: { id: true, name: true },
     });
   }
 
@@ -142,22 +148,5 @@ export class UsersService {
       data,
     });
     return this.toPublic(updated);
-  }
-
-  async changePassword({
-    userId,
-    currentPassword,
-    newPassword,
-  }: ChangePasswordPayload): Promise<ChangePasswordResponse> {
-    const user = await this.requireUser(userId);
-    const matches = await bcrypt.compare(currentPassword, user.passwordHash);
-    if (!matches) {
-      throw new BadRequestException("Current password is incorrect");
-    }
-    await this.prisma.user.update({
-      where: { id: user.id },
-      data: { passwordHash: await bcrypt.hash(newPassword, 10) },
-    });
-    return { ok: true };
   }
 }

@@ -28,30 +28,10 @@ export type TeamMember = {
   updatedAt: string;
 };
 
-export type RegisterPayload = { name: string; email: string; password: string };
-export type RegisterResponse = { id: string; email: string; name: string };
-
-export type LoginPayload = { email: string; password: string };
-export type LoginResponse = {
-  accessToken: string;
-  user: {
-    id: string;
-    email: string;
-    name: string;
-    role: string;
-    permissions: Permission[];
-  };
-};
-
 export type GetMePayload = { userId: string };
 
 export type UpdateMePayload = { userId: string; name?: string; email?: string };
 
-export type ChangePasswordPayload = {
-  userId: string;
-  currentPassword: string;
-  newPassword: string;
-};
 export type ChangePasswordResponse = { ok: true };
 
 export type GetAssignablePayload = { userId: string };
@@ -59,6 +39,13 @@ export type GetAssignablePayload = { userId: string };
 export type FindByIdsPayload = { ids: string[] };
 
 export type FindByPermissionPayload = { permission: Permission };
+
+export type UpsertUserPayload = {
+  id: string;
+  email: string;
+  name: string;
+  role: string;
+};
 
 export type TeamInvitePayload = { email: string; role: Role };
 
@@ -71,18 +58,8 @@ export type TeamUpdatePayload = {
 type Empty = Record<string, never>;
 
 export type UsersContract = {
-  [messages.authRegister]: {
-    payload: RegisterPayload;
-    response: RegisterResponse;
-  };
-  [messages.authLogin]: { payload: LoginPayload; response: LoginResponse };
-
   [messages.usersGetMe]: { payload: GetMePayload; response: PublicUser };
   [messages.usersUpdateMe]: { payload: UpdateMePayload; response: PublicUser };
-  [messages.usersChangePassword]: {
-    payload: ChangePasswordPayload;
-    response: ChangePasswordResponse;
-  };
   [messages.usersListAssignable]: {
     payload: Empty;
     response: AssignableUser[];
@@ -97,6 +74,7 @@ export type UsersContract = {
     response: { id: string }[];
   };
   [messages.usersListAll]: { payload: Empty; response: UserRef[] };
+  [messages.usersUpsert]: { payload: UpsertUserPayload; response: UserRef };
 
   [messages.teamFindAll]: { payload: Empty; response: TeamMember[] };
   [messages.teamInvite]: { payload: TeamInvitePayload; response: TeamMember };

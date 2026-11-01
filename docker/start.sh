@@ -5,6 +5,7 @@ set -e
 case "$APP" in
   crm-server)
     npx prisma migrate deploy
+    npx prisma migrate deploy --config apps/crm-server/prisma-auth/prisma-auth.config.ts
     ;;
   users-service)
     npx prisma migrate deploy --config apps/users-service/prisma.config.ts
