@@ -12,7 +12,6 @@ import type {
   NotificationDto,
   NotificationListDto,
   NotificationRow,
-  CreateNotifications,
 } from "./dto/notification.dto";
 import {
   permissions,

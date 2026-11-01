@@ -18,6 +18,19 @@ services:
       interval: 2s
       timeout: 3s
       retries: 15
+  redis:
+    image: redis:7-alpine
+    container_name: crm-redis
+    ports:
+      - "6379:6379"
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redisdata:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 2s
+      timeout: 3s
+      retries: 15
 
   # микросервис пользователей — без "ports": снаружи недоступен, только из docker-сети
   users-service:
@@ -59,6 +72,8 @@ services:
     ports:
       - "3001:3001"
     depends_on:
+      redis:
+        condition: service_healthy
       db:
         condition: service_healthy
       users-service:
@@ -79,6 +94,9 @@ services:
       - USERS_SERVICE_PORT=4002
       - LEADS_SERVICE_HOST=leads-service
       - LEADS_SERVICE_PORT=4003
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
 
 volumes:
   pgdata:
+  redisdata:

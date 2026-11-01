@@ -4,7 +4,6 @@ import {
   IsEnum,
   IsOptional,
   IsString,
-  isUUID,
   MinLength,
 } from "class-validator";
 import { PartialType } from "@nestjs/swagger";

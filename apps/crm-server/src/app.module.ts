@@ -31,8 +31,12 @@ import { BullModule } from "@nestjs/bullmq";
     NotificationsModule,
     BullModule.forRoot({
       connection: {
-        host: "localhost",
-        port: "6379",
+        host: process.env.REDIS_HOST ?? "localhost",
+        port: Number(process.env.REDIS_PORT) || 6379,
+      },
+      defaultJobOptions: {
+        removeOnComplete: { count: 1000 },
+        removeOnFail: { count: 5000 },
       },
     }),
   ],

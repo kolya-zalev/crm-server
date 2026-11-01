@@ -1,16 +1,14 @@
-import { Logger } from "@nestjs/common";
 import { Injectable } from "@nestjs/common";
-import { NotificationsService } from "../notifications/notifications.service";
 import { CreateTaskDto, UpdateTaskDto } from "./dto/task.dto";
-import { Actor, leadsMessages, leadStatuses } from "@app/contracts";
+import { Actor, leadsMessages } from "@app/contracts";
 import { LeadsClient } from "../leads/leads.client";
+import { NotificationsProducer } from "../notifications/notifications.producer";
 @Injectable()
 export class TasksFacade {
-  private readonly logger = new Logger(TasksFacade.name);
 
   constructor(
     private readonly tasks: LeadsClient,
-    private readonly notificationsService: NotificationsService,
+    private readonly notificationsProducer: NotificationsProducer,
   ) {}
   async findAll() {
     return await this.tasks.send(leadsMessages.tasksFindAll, {});
@@ -30,16 +28,13 @@ export class TasksFacade {
       { leadId, data: dto, actor },
     );
 
-    try {
-      await this.notificationsService.notifyTaskCreated({
-        actor,
-        leadId,
-        leadName,
-        taskTitle: task.title,
-      });
-    } catch (error) {
-      this.logger.error("Failed to create task notifications", error as Error);
-    }
+    await this.notificationsProducer.taskCreated({
+      actor,
+      leadId,
+      leadName,
+      taskTitle: task.title,
+    });
+
     return task;
   }
   async remove(taskId: string, actor: Actor) {
@@ -47,15 +42,12 @@ export class TasksFacade {
       leadsMessages.tasksRemove,
       { taskId },
     );
-    try {
-      await this.notificationsService.notifyTaskDeleted({
-        actor,
-        leadId: task.leadId,
-        leadName,
-        assignTask: task.title,
-      });
-    } catch (error) {
-      this.logger.error("Failed to remove task notifications", error as Error);
-    }
+
+    await this.notificationsProducer.taskDeleted({
+      actor,
+      leadId: task.leadId,
+      leadName,
+      assignTask: task.title,
+    });
   }
 }

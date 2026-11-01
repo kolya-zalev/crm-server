@@ -10,6 +10,14 @@ export const notificationTypes = {
 export type NotificationType =
   (typeof notificationTypes)[keyof typeof notificationTypes];
 
+export const notificationsJobs = {
+  leadAssigned: "lead-assigned",
+  leadClosed: "lead-closed",
+  leadStatusChanged: "lead-status-changed",
+  taskCreated: "task-created",
+  taskDeleted: "task-deleted",
+} as const;
+
 export const notificationSseEvents = {
   conected: "connected",
   notification: "notification",

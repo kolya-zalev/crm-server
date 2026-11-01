@@ -1,18 +1,16 @@
-import { Injectable, Logger } from "@nestjs/common";
+import { Injectable } from "@nestjs/common";
 import type { Actor } from "../auth/current-user.decorator";
-import { NotificationsService } from "../notifications/notifications.service";
 import { UsersService } from "../users/users.service";
 import { CreateLeadDto, UpdateLeadDto } from "./dto/lead.dto";
 import { leadsMessages, permissions } from "@app/contracts";
 import { LeadsClient } from "./leads.client";
+import { NotificationsProducer } from "../notifications/notifications.producer";
 @Injectable()
 export class LeadsFacade {
-  private readonly logger = new Logger(LeadsFacade.name);
-
   constructor(
     private readonly leads: LeadsClient,
     private readonly users: UsersService,
-    private readonly notifications: NotificationsService,
+    private readonly notificationsProducer: NotificationsProducer,
   ) {}
   async findAll() {
     return this.attachAssignees(
@@ -100,36 +98,32 @@ export class LeadsFacade {
       newStatus,
     } = params;
 
-    try {
-      if (assignedChanged && nextAssignee) {
-        await this.notifications.notifyLeadAssigned({
-          actor,
-          assignedId: nextAssignee.id,
-          assignedName: nextAssignee.name,
-          leadId: lead.id,
-          leadName: lead.name,
-        });
-      }
+    if (assignedChanged && nextAssignee) {
+      await this.notificationsProducer.leadAssigned({
+        actor,
+        assignedId: nextAssignee.id,
+        assignedName: nextAssignee.name,
+        leadId: lead.id,
+        leadName: lead.name,
+      });
+    }
 
-      if (closing && newStatus) {
-        await this.notifications.notifyLeadClosed({
-          actor,
-          leadId: lead.id,
-          leadName: lead.name,
-          status: newStatus,
-        });
-      }
+    if (closing && newStatus) {
+      await this.notificationsProducer.leadClosed({
+        actor,
+        leadId: lead.id,
+        leadName: lead.name,
+        status: newStatus,
+      });
+    }
 
-      if (statusChanged && !closing && newStatus) {
-        await this.notifications.notifyLeadStatusChanged({
-          actor,
-          leadId: lead.id,
-          leadName: lead.name,
-          status: newStatus,
-        });
-      }
-    } catch (error) {
-      this.logger.error("Failed to create notifications", error as Error);
+    if (statusChanged && !closing && newStatus) {
+      await this.notificationsProducer.leadStatusChanged({
+        actor,
+        leadId: lead.id,
+        leadName: lead.name,
+        status: newStatus,
+      });
     }
   }
 }
