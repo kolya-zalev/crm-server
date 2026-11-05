@@ -13,10 +13,7 @@ import type {
   NotificationListDto,
   NotificationRow,
 } from "./dto/notification.dto";
-import {
-  permissions,
-  type Permission,
-} from "../../../../libs/contracts/src/permissions.constants";
+import { permissions, type Permission } from "@app/contracts";
 import { UsersService } from "../users/users.service";
 
 @Injectable()
