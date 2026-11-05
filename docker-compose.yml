@@ -10,20 +10,93 @@ services:
       POSTGRES_DB: crm_db
     volumes:
       - pgdata:/var/lib/postgresql/data
+      # создаёт users_db и leads_db при первом запуске (на пустом томе)
+      - ./docker/postgres-init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    # остальные ждут, пока Postgres реально начнёт принимать подключения
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U crm -d crm_db"]
+      interval: 2s
+      timeout: 3s
+      retries: 15
+  redis:
+    image: redis:7-alpine
+    container_name: crm-redis
+    ports:
+      - "6379:6379"
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redisdata:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 2s
+      timeout: 3s
+      retries: 15
 
+  # микросервис пользователей — без "ports": снаружи недоступен, только из docker-сети
+  users-service:
+    build:
+      context: .
+      args:
+        APP: users-service
+    container_name: crm-users-service
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      - NODE_ENV=production
+      - USERS_DATABASE_URL=postgresql://crm:crm123@db:5432/users_db
+      - USERS_SERVICE_PORT=4002
+
+  # микросервис лидов — тоже без "ports". JWT_SECRET ему не нужен: токены проверяет api
+  leads-service:
+    build:
+      context: .
+      args:
+        APP: leads-service
+    container_name: crm-leads-service
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      - NODE_ENV=production
+      - LEADS_DATABASE_URL=postgresql://crm:crm123@db:5432/leads_db
+      - LEADS_SERVICE_PORT=4003
+
+  # BFF — единственный, кого видит фронт
   api:
-    build: .
+    build:
+      context: .
+      args:
+        APP: crm-server
     container_name: crm-backend
     ports:
       - "3001:3001"
     depends_on:
-      - db
+      redis:
+        condition: service_healthy
+      db:
+        condition: service_healthy
+      users-service:
+        condition: service_started
+      leads-service:
+        condition: service_started
     volumes:
       - ./data:/app/data
     environment:
       - PORT=3001
       - NODE_ENV=production
       - DATABASE_URL=postgresql://crm:crm123@db:5432/crm_db
+      - AUTH_DATABASE_URL=postgresql://crm:crm123@db:5432/auth_db
+      - BETTER_AUTH_SECRET=${BETTER_AUTH_SECRET:-change-me-to-a-long-random-secret-32-chars}
+      - BETTER_AUTH_URL=http://localhost:3001
+      - FRONTEND_URL=http://localhost:3000
+      - USERS_SERVICE_HOST=users-service
+      - USERS_SERVICE_PORT=4002
+      - LEADS_SERVICE_HOST=leads-service
+      - LEADS_SERVICE_PORT=4003
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
 
 volumes:
   pgdata:
+  redisdata:

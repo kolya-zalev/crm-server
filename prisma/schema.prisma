@@ -7,19 +7,30 @@ datasource db {
 }
 
 model Lead {
-  id String @id @default(uuid())
-  name String
-  email String
-  phone String?
+  id     String  @id @default(uuid())
+  name   String
+  email  String
+  phone  String?
   company String
   status String @default("new")
-  tags String[]
-  notes String?
+  tags   String[]
+  notes  String?
   source String?
-
-  leadNotes Note[]
+  
+  createdAt DateTime @default(now())
+  statusChangedAt DateTime  @default(now())
+  closedAt        DateTime?
+  closedById      String?
+  leadNotes  Note[]
   activities Activity[]
-  tasks Task[]
+  tasks      Task[]
+
+  assignedToName String?
+  assignedToId String?
+
+  @@index([status, statusChangedAt])
+  @@index([closedById])
+  @@index([assignedToId])
 }
 
 model Note{
@@ -33,13 +44,15 @@ model Note{
 }
 
 model Activity {
-  id String @id @default(uuid())
-  leadId String
-  lead Lead   @relation(fields: [leadId], references: [id])
-  type String
+  id          String   @id @default(uuid())
+  leadId      String
+  lead        Lead     @relation(fields: [leadId], references: [id])
+  type        String
   description String
-  createdAt DateTime @default(now())
+  createdAt   DateTime @default(now())
 
+  userId   String?
+  userName String  @default("")
 }
 
 model Task {
@@ -53,4 +66,51 @@ model Task {
   dueDate     DateTime
   createdAt   DateTime  @default(now())
   completedAt DateTime?
+}
+
+model User {
+  id           String   @id @default(uuid())
+  email        String   @unique
+  passwordHash String
+  name         String
+  role         String   @default("member")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  emailChangedAt DateTime?
+
+}
+
+model ChatMessage {
+  id      String      @id @default(uuid())
+  text  String
+  authorId String
+  authorName String
+  createdAt DateTime @default(now())
+}
+
+model TeamMember {
+  id        String    @id @default(uuid())
+  name      String    @default("")
+  email     String    @unique
+  role      String    
+  status    String    
+  invitedAt DateTime?
+  joinedAt  DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model Notification {
+  id        String   @id @default(uuid())
+  userId    String
+  type      String
+  message   String
+  leadId    String?
+  actorId   String?
+  actorName String   @default("")
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([userId, createdAt])
+  @@index([userId, isRead])
 }

@@ -1,0 +1,62 @@
+import { Controller } from "@nestjs/common";
+import { MessagePattern, Payload } from "@nestjs/microservices";
+import {
+  messages,
+  type AssignableUser,
+  type FindByIdsPayload,
+  type FindByPermissionPayload,
+  type GetAssignablePayload,
+  type GetMePayload,
+  type PublicUser,
+  type UpdateMePayload,
+  type UpsertUserPayload,
+  type UserRef,
+} from "@app/contracts";
+import { UsersService } from "./users.service";
+
+@Controller()
+export class UsersController {
+  constructor(private readonly usersService: UsersService) {}
+
+  @MessagePattern(messages.usersUpsert)
+  upsert(@Payload() payload: UpsertUserPayload): Promise<UserRef> {
+    return this.usersService.upsert(payload);
+  }
+
+  @MessagePattern(messages.usersGetMe)
+  getMe(@Payload() { userId }: GetMePayload): Promise<PublicUser> {
+    return this.usersService.getMe(userId);
+  }
+
+  @MessagePattern(messages.usersUpdateMe)
+  updateMe(@Payload() payload: UpdateMePayload): Promise<PublicUser> {
+    return this.usersService.updateMe(payload);
+  }
+
+  @MessagePattern(messages.usersListAssignable)
+  listAssignable(): Promise<AssignableUser[]> {
+    return this.usersService.listAssignable();
+  }
+
+  @MessagePattern(messages.usersGetAssignable)
+  getAssignable(@Payload() { userId }: GetAssignablePayload): Promise<UserRef> {
+    return this.usersService.getAssignable(userId);
+  }
+
+  @MessagePattern(messages.usersFindByIds)
+  findByIds(@Payload() { ids }: FindByIdsPayload): Promise<UserRef[]> {
+    return this.usersService.findByIds(ids);
+  }
+
+  @MessagePattern(messages.usersFindByPermission)
+  findByPermission(
+    @Payload() { permission }: FindByPermissionPayload,
+  ): Promise<{ id: string }[]> {
+    return this.usersService.findByPermission(permission);
+  }
+
+  @MessagePattern(messages.usersListAll)
+  listAll(): Promise<UserRef[]> {
+    return this.usersService.listAll();
+  }
+}

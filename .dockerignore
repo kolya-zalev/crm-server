@@ -2,3 +2,6 @@ node_modules
 dist
 .git
 .env
+apps/users-service/generated
+apps/leads-service/generated
+apps/crm-server/generated

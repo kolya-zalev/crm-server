@@ -1,17 +1,21 @@
 import "dotenv/config";
 import { PrismaClient } from "@prisma/client";
-import { getPrismaClientOptions } from "../src/prisma/prisma-client-options";
-
+import * as bcrypt from "bcrypt";
+import { getPrismaClientOptions } from "../apps/crm-server/src/prisma/prisma-client-options";
 const prisma = new PrismaClient(getPrismaClientOptions());
 
 async function main() {
-  console.log("Cleaning database...");
+  console.log("🌱 Cleaning database...");
+  await prisma.notification.deleteMany();
+  await prisma.chatMessage.deleteMany();
   await prisma.task.deleteMany();
   await prisma.activity.deleteMany();
   await prisma.note.deleteMany();
   await prisma.lead.deleteMany();
+  await prisma.teamMember.deleteMany();
+  await prisma.user.deleteMany();
 
-  console.log("Importing 5 leads with full relations into PostgreSQL...");
+  console.log("🚀 Importing 5 leads with full relations into PostgreSQL...");
 
   // 1. LEAD: Kolya
   const kolya = await prisma.lead.create({
@@ -82,7 +86,7 @@ async function main() {
   });
 
   // --- SEEDING NOTES ---
-  console.log("Seeding notes...");
+  console.log("📝 Seeding notes...");
   await prisma.note.createMany({
     data: [
       {
@@ -104,7 +108,7 @@ async function main() {
   });
 
   // --- SEEDING ACTIVITIES ---
-  console.log(" Seeding activities...");
+  console.log("⚡ Seeding activities...");
   await prisma.activity.createMany({
     data: [
       {
@@ -129,7 +133,7 @@ async function main() {
   });
 
   // --- SEEDING TASKS ---
-  console.log(" Seeding tasks...");
+  console.log("📋 Seeding tasks...");
   await prisma.task.create({
     data: {
       leadId: kolya.id,
@@ -191,16 +195,74 @@ async function main() {
       completedAt: new Date(Date.now() - 86400000),
     },
   });
+
+  console.log("Seeding users...");
+  const passwordHash = await bcrypt.hash("password123", 10);
+  await prisma.user.create({
+    data: {
+      name: "Admin",
+      email: "admin@example.com",
+      passwordHash,
+      role: "admin",
+    },
+  });
+  await prisma.user.create({
+    data: {
+      name: "Manager",
+      email: "manager@example.com",
+      passwordHash,
+      role: "manager",
+    },
+  });
+  await prisma.user.create({
+    data: {
+      name: "Member",
+      email: "member@example.com",
+      passwordHash,
+      role: "member",
+    },
+  });
+
+  // --- SEEDING TEAM MEMBERS ---
+  console.log("Seeding team members...");
+  await prisma.teamMember.createMany({
+    data: [
+      {
+        name: "Test Admin",
+        email: "testadmin@example.com",
+        role: "admin",
+        status: "active",
+        invitedAt: new Date(Date.now() - 86400000),
+        joinedAt: new Date(Date.now() - 86400000),
+      },
+      {
+        name: "Test Manager",
+        email: "testmanager@example.com",
+        role: "manager",
+        status: "active",
+        invitedAt: new Date(Date.now() - 86400000),
+        joinedAt: new Date(Date.now() - 86400000),
+      },
+      {
+        name: "Test Member",
+        email: "testmember@example.com",
+        role: "member",
+        status: "active",
+        invitedAt: new Date(Date.now() - 86400000),
+        joinedAt: new Date(Date.now() - 86400000),
+      },
+    ],
+  });
 }
 
 main()
   .then(() => {
     console.log(
-      " Success! Full relation dataset migrated to PostgreSQL (Seeded!).",
+      "✅ Success! Full relation dataset migrated to PostgreSQL (Seeded!).",
     );
   })
   .catch((err) => {
-    console.error(" Seeding error encountered:", err);
+    console.error("❌ Seeding error encountered:", err);
     process.exit(1);
   })
   .finally(async () => {

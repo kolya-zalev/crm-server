@@ -3,3 +3,6 @@ dist
 .env
 
 /generated/prisma
+apps/users-service/generated
+apps/leads-service/generated
+apps/crm-server/generated
